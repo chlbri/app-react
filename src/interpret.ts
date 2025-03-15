@@ -1,0 +1,93 @@
+import {
+  interpret as _interpret,
+  getByKey,
+  type Config,
+  type GetEventsFromConfig,
+  type Machine,
+  type MachineOptions,
+  type Mode,
+  type SimpleMachineOptions2,
+} from '@bemedev/app-ts';
+import type {
+  EventsMap,
+  PromiseeMap,
+  ToEventsR,
+} from '@bemedev/app-ts/lib/events';
+import type { PrimitiveObject } from '@bemedev/app-ts/lib/types';
+import { t } from '@bemedev/types';
+import type { Decompose, KeysMatching, State } from './types';
+import { useSelector } from './useSelector';
+import { defaultCompare, type Compare_F } from './utils';
+import { reFunction } from './utils/reFunction';
+
+export type Interpreter_F = <
+  const C extends Config = Config,
+  Pc = any,
+  Tc extends PrimitiveObject = PrimitiveObject,
+  E extends EventsMap = GetEventsFromConfig<C>,
+  P extends PromiseeMap = PromiseeMap,
+  Mo extends SimpleMachineOptions2 = MachineOptions<C, E, P, Pc, Tc>,
+>(
+  machine: Machine<C, Pc, Tc, E, P, Mo>,
+  config: { pContext: Pc; context: Tc; mode?: Mode },
+) => any;
+
+export const interpret = <
+  const C extends Config = Config,
+  Pc = any,
+  Tc extends PrimitiveObject = PrimitiveObject,
+  E extends EventsMap = GetEventsFromConfig<C>,
+  P extends PromiseeMap = PromiseeMap,
+  Mo extends SimpleMachineOptions2 = MachineOptions<C, E, P, Pc, Tc>,
+>(
+  machine: Machine<C, Pc, Tc, E, P, Mo>,
+  config: { pContext: Pc; context: Tc; mode?: Mode },
+) => {
+  const service = _interpret<C, Pc, Tc, E, P, Mo>(machine, config);
+
+  const start = reFunction(service, 'start');
+  const stop = reFunction(service, 'stop');
+  const send = service.send;
+
+  const sender = <T extends ToEventsR<E, P>['type']>(type: T) => {
+    type Er =
+      ToEventsR<E, P> extends {
+        type: T;
+      } & infer U
+        ? // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+          U extends {}
+          ? Omit<U, 'type'>
+          : never
+        : never;
+
+    return (...[event]: Er extends never ? [] : [event: E]) => {
+      send({ type, ...(event as any) });
+    };
+  };
+
+  const selector = (key: KeysMatching<State<Tc>>) => key;
+
+  const useState = <
+    D extends Decompose<State<Tc>>,
+    K extends Extract<keyof D, string>,
+    R extends D[K],
+  >(
+    key?: K,
+    compare: Compare_F<R> = defaultCompare,
+  ) => {
+    const out = useSelector<C, Pc, Tc, E, P, Mo, R>(
+      service,
+      state => {
+        if (key === undefined) {
+          return t.unknown<R>(state);
+        }
+        return t.unknown<R>(getByKey(state, key));
+      },
+      compare,
+    );
+
+    return out;
+  };
+
+  return { start, stop, sender, selector, useState };
+};
