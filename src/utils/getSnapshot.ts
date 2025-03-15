@@ -7,6 +7,7 @@ import type {
 } from '@bemedev/app-ts';
 import type { EventsMap, PromiseeMap } from '@bemedev/app-ts/lib/events';
 import type { PrimitiveObject } from '@bemedev/app-ts/lib/types';
+import { dequal } from 'dequal';
 import type { RefObject } from 'react';
 import type { State } from '../types';
 
@@ -18,20 +19,11 @@ export function getSnapshot<
   P extends PromiseeMap = PromiseeMap,
   Mo extends SimpleMachineOptions2 = MachineOptions<C, E, P, Pc, Tc>,
 >(service: Interpreter<C, Pc, Tc, E, P, Mo>, ref: RefObject<State<Tc>>) {
-  if (service.status === 'idle' && ref.current) {
-    return ref.current;
-  }
-  const snapshot = {
-    context: service.context,
-    mode: service.mode,
-    scheduleds: service.scheduleds,
-    status: service.status,
-    value: service.value,
-  };
+  const snapShot = service.getSnapshot();
 
-  if (service.status !== 'stopped') {
-    ref.current = snapshot;
-  }
+  const check = dequal(snapShot, ref.current);
+  if (check) return ref.current;
 
-  return snapshot;
+  ref.current = snapShot;
+  return ref.current;
 }

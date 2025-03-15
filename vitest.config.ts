@@ -1,5 +1,6 @@
 import { aliasTs } from '@bemedev/vitest-alias';
 import { exclude } from '@bemedev/vitest-exclude';
+import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vitest/config';
 import tsconfig from './tsconfig.json';
 
@@ -7,6 +8,7 @@ export default defineConfig({
   plugins: [
     aliasTs(tsconfig as any),
     exclude({ ignoreCoverageFiles: ['**/index.ts'] }),
+    react(),
   ],
   test: {
     bail: 10,
@@ -15,6 +17,7 @@ export default defineConfig({
     slowTestThreshold: 3000,
     globals: true,
     logHeapUsage: true,
+    environment: 'jsdom',
     coverage: {
       enabled: true,
       extension: 'ts',

@@ -158,4 +158,6 @@ export const machine2 = createMachine(
     },
   }),
 );
+
+export type Machine2 = typeof machine2;
 // #endregion

@@ -6,19 +6,13 @@ import type {
   SimpleMachineOptions2,
 } from '@bemedev/app-ts';
 import type { EventsMap, PromiseeMap } from '@bemedev/app-ts/lib/events';
-import type {
-  FnMapReduced,
-  PrimitiveObject,
-} from '@bemedev/app-ts/lib/types';
+import type { PrimitiveObject } from '@bemedev/app-ts/lib/types';
 import useSyncExternalStoreWithSelector from '@bemedev/react-sync';
+import { t } from '@bemedev/types';
+import { dequal } from 'dequal';
 import { useCallback, useRef } from 'react';
 import type { State } from './types';
-import {
-  defaultCompare,
-  defaultSelector,
-  getSnapshot,
-  type Compare_F,
-} from './utils';
+import { defaultSelector, getSnapshot, type Compare_F } from './utils';
 
 export const useSelector = <
   const C extends Config = Config,
@@ -31,18 +25,17 @@ export const useSelector = <
 >(
   service: Interpreter<C, Pc, Tc, E, P, Mo>,
   selector: (emitted: State<Tc>) => T = defaultSelector,
-  compare: Compare_F<T> = defaultCompare,
+  compare: Compare_F = dequal,
 ) => {
-  const initialStateCacheRef = useRef<State<Tc>>({
-    status: 'idle',
-    scheduleds: 0,
-  });
+  const initialStateCacheRef = useRef<State<Tc>>(
+    t.any<State<Tc>>(undefined),
+  );
 
-  type Listener = FnMapReduced<E, P, Tc>;
+  type Listener = (state: State<Tc>) => void;
 
   const subscribe = useCallback(
     (listerner: Listener) => {
-      const { unsubscribe } = service.subscribe(listerner);
+      const unsubscribe = service.subscribe(listerner);
       return unsubscribe;
     },
     [service],
