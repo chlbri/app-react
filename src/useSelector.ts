@@ -8,14 +8,14 @@ import { t } from '@bemedev/types';
 import { dequal } from 'dequal';
 import { useCallback, useRef } from 'react';
 import type { State } from './types';
-import { defaultSelector, getSnapshot, type Compare_F } from './utils';
+import { getSnapshot, type Compare_F } from './utils';
 
 export const useSelector = <
   const M extends AnyMachine = AnyMachine,
   T = State<ContextFrom<M>>,
 >(
   service: InterpreterFrom<M>,
-  selector: (emitted: State<ContextFrom<M>>) => T = defaultSelector,
+  selector: (emitted: State<ContextFrom<M>>) => T,
   compare: Compare_F = dequal,
 ) => {
   type _State = State<ContextFrom<M>>;

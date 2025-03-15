@@ -6,7 +6,7 @@ import {
   type Mode,
   type PrivateContextFrom,
 } from '@bemedev/app-ts';
-import type { Decompose, KeysMatching, State } from './types';
+import type { Decompose, State } from './types';
 import { useSelector } from './useSelector';
 import { defaultCompare, identity, type Compare_F } from './utils';
 import { reFunction } from './utils/reFunction';
@@ -26,7 +26,7 @@ export const interpret = <const M extends AnyMachine = AnyMachine>(
   const stop = reFunction(service, 'stop');
   const send = reFunction(service, 'send');
   const addOptions = reFunction(service, 'addOptions');
-  const selector = identity<KeysMatching<_State>>;
+  const selector = identity<keyof Decompose<_State>>;
 
   const useState = <
     D extends Decompose<_State>,

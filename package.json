@@ -9,12 +9,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "//TODO"
+    "url": "https://github.com/chlbri/app-react"
   },
   "license": "MIT",
   "type": "module",
   "main": "lib/index.js",
-  "types": "lib/index.d.ts",
+  "typings": "lib/index.d.ts",
   "module": "lib/index.js",
   "maintainers": [
     {
@@ -31,7 +31,15 @@
     }
   ],
   "keywords": [
-    "//TODO"
+    "app",
+    "react",
+    "bemedev",
+    "app-ts",
+    "react-sync",
+    "typescript",
+    "state",
+    "statecharts",
+    "state-machine"
   ],
   "files": [
     "lib",
@@ -77,7 +85,9 @@
     }
   ],
   "devDependencies": {
-    "@bemedev/app-ts": "0.1.9-beta",
+    "@bemedev/app-ts": "0.1.10-beta",
+    "@bemedev/build-tests": "^0.1.0",
+    "@bemedev/decompose": "^0.8.1",
     "@bemedev/fsf": "^0.7.3",
     "@bemedev/rollup-config": "^0.1.1",
     "@bemedev/sleep": "^0.1.2",

@@ -11,18 +11,6 @@ export type State<Tc extends PrimitiveObject> = {
   value?: StateValue;
 };
 
-export type KeysMatching<
-  T extends TrueObject,
-  AddObjectKeys extends boolean = true,
-  Key extends keyof T = keyof T,
-> = Key extends string
-  ? Required<T[Key]> extends TrueObject
-    ?
-        | `${Key}.${KeysMatching<Required<T[Key]>, AddObjectKeys> & string}`
-        | (AddObjectKeys extends true ? Key : never)
-    : Key
-  : never;
-
 type ToPaths<
   T,
   D extends string = '.',

@@ -16,6 +16,7 @@
     "noUnusedParameters": true,
     "moduleResolution": "Bundler",
     "types": ["vitest/globals"],
+    "module": "esnext",
     "jsx": "react",
     "esModuleInterop": true,
     "skipLibCheck": true,
