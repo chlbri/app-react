@@ -1,24 +1,16 @@
 import type {
-  Config,
-  GetEventsFromConfig,
-  Interpreter,
-  MachineOptions,
-  SimpleMachineOptions2,
+  AnyMachine,
+  ContextFrom,
+  InterpreterFrom,
 } from '@bemedev/app-ts';
-import type { EventsMap, PromiseeMap } from '@bemedev/app-ts/lib/events';
-import type { PrimitiveObject } from '@bemedev/app-ts/lib/types';
 import { dequal } from 'dequal';
 import type { RefObject } from 'react';
 import type { State } from '../types';
 
-export function getSnapshot<
-  const C extends Config = Config,
-  Pc = any,
-  Tc extends PrimitiveObject = PrimitiveObject,
-  E extends EventsMap = GetEventsFromConfig<C>,
-  P extends PromiseeMap = PromiseeMap,
-  Mo extends SimpleMachineOptions2 = MachineOptions<C, E, P, Pc, Tc>,
->(service: Interpreter<C, Pc, Tc, E, P, Mo>, ref: RefObject<State<Tc>>) {
+export function getSnapshot<const M extends AnyMachine = AnyMachine>(
+  service: InterpreterFrom<M>,
+  ref: RefObject<State<ContextFrom<M>>>,
+) {
   const snapShot = service.getSnapshot();
 
   const check = dequal(snapShot, ref.current);

@@ -1,12 +1,8 @@
 import type {
-  Config,
-  GetEventsFromConfig,
-  Interpreter,
-  MachineOptions,
-  SimpleMachineOptions2,
+  AnyMachine,
+  ContextFrom,
+  InterpreterFrom,
 } from '@bemedev/app-ts';
-import type { EventsMap, PromiseeMap } from '@bemedev/app-ts/lib/events';
-import type { PrimitiveObject } from '@bemedev/app-ts/lib/types';
 import useSyncExternalStoreWithSelector from '@bemedev/react-sync';
 import { t } from '@bemedev/types';
 import { dequal } from 'dequal';
@@ -15,34 +11,29 @@ import type { State } from './types';
 import { defaultSelector, getSnapshot, type Compare_F } from './utils';
 
 export const useSelector = <
-  const C extends Config = Config,
-  Pc = any,
-  Tc extends PrimitiveObject = PrimitiveObject,
-  E extends EventsMap = GetEventsFromConfig<C>,
-  P extends PromiseeMap = PromiseeMap,
-  Mo extends SimpleMachineOptions2 = MachineOptions<C, E, P, Pc, Tc>,
-  T = State<Tc>,
+  const M extends AnyMachine = AnyMachine,
+  T = State<ContextFrom<M>>,
 >(
-  service: Interpreter<C, Pc, Tc, E, P, Mo>,
-  selector: (emitted: State<Tc>) => T = defaultSelector,
+  service: InterpreterFrom<M>,
+  selector: (emitted: State<ContextFrom<M>>) => T = defaultSelector,
   compare: Compare_F = dequal,
 ) => {
-  const initialStateCacheRef = useRef<State<Tc>>(
-    t.any<State<Tc>>(undefined),
-  );
+  type _State = State<ContextFrom<M>>;
 
-  type Listener = (state: State<Tc>) => void;
+  const initialStateCacheRef = useRef<_State>(t.any<_State>(undefined));
+
+  type Listener = (state: _State) => void;
 
   const subscribe = useCallback(
     (listerner: Listener) => {
-      const unsubscribe = service.subscribe(listerner);
+      const unsubscribe = service.subscribe(listerner as any);
       return unsubscribe;
     },
     [service],
   );
 
   const boundGetSnapshot = useCallback(() => {
-    return getSnapshot<C, Pc, Tc, E, P, Mo>(service, initialStateCacheRef);
+    return getSnapshot<M>(service, initialStateCacheRef as any);
   }, [service]);
 
   const selectedSnapshot = useSyncExternalStoreWithSelector(

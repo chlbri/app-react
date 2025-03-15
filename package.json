@@ -1,7 +1,7 @@
 {
   "name": "@bemedev/app-react",
   "version": "0.0.1-beta",
-  "description": "//TODO",
+  "description": "Use app-ts inside react",
   "author": {
     "email": "bri_lvi@icloud.com",
     "name": "chlbri",
@@ -77,7 +77,7 @@
     }
   ],
   "devDependencies": {
-    "@bemedev/app-ts": "0.1.8-beta",
+    "@bemedev/app-ts": "0.1.9-beta",
     "@bemedev/fsf": "^0.7.3",
     "@bemedev/rollup-config": "^0.1.1",
     "@bemedev/sleep": "^0.1.2",
@@ -110,7 +110,6 @@
     "react-test-renderer": "^19.0.0",
     "rollup": "^4.35.0",
     "size-limit": "^11.2.0",
-    "sleep": "^6.3.0",
     "tslib": "^2.8.1",
     "typescript": "^5.8.2",
     "vitest": "^3.0.8"
