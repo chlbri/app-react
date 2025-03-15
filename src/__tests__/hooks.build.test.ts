@@ -152,7 +152,7 @@ describe('interpret', () => {
 
     const FAKES = fakeDB.filter(({ name }) => name.includes(INPUT));
     expect(result.current).toEqual(FAKES);
-    
+
     await act(advance(10_000));
   });
 
