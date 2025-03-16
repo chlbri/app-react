@@ -4,7 +4,7 @@ import { interpret } from '../interpret';
 import { fakeDB, machine2 } from './data';
 
 describe('interpret', () => {
-  const { start, useState, send, selector } = interpret(machine2, {
+  const { start, useState, send } = interpret(machine2, {
     pContext: {
       iterator: 0,
     },
@@ -76,9 +76,8 @@ describe('interpret', () => {
   });
 
   test('#02 => test number -> context.iterator', async () => {
-    const select = selector('context.iterator');
     const { result } = renderHook(() =>
-      useState(select, (a, b) => a === b),
+      useState('context.iterator', (a, b) => a === b),
     );
     expect(result.current).toEqual(36);
   });
@@ -103,9 +102,8 @@ describe('interpret', () => {
   });
 
   test('#04 => test string -> context.input', async () => {
-    const select = selector('context.input');
     const { result } = renderHook(() =>
-      useState(select, (a, b) => a === b),
+      useState('context.input', (a, b) => a === b),
     );
 
     expect(result.current).toEqual('');
@@ -124,8 +122,7 @@ describe('interpret', () => {
   });
 
   test('#06 => test array -> context.data', async () => {
-    const select = selector('context.data');
-    const { result } = renderHook(() => useState(select));
+    const { result } = renderHook(() => useState('context.data'));
 
     console.warn('result.current', result.current);
     expect(result.current).toEqual([]);

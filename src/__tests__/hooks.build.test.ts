@@ -14,10 +14,7 @@ describe('interpret', () => {
 
   type RR = ReturnType<typeof interpret<Machine2>>;
 
-  let start: RR['start'],
-    useState: RR['useState'],
-    send: RR['send'],
-    selector: RR['selector'];
+  let start: RR['start'], useState: RR['useState'], send: RR['send'];
 
   const advance =
     (ms = 0) =>
@@ -29,7 +26,7 @@ describe('interpret', () => {
     addTarball();
     tester = await import(this1).then(({ interpret }) => interpret);
 
-    ({ start, useState, send, selector } = tester(machine2, {
+    ({ start, useState, send } = tester(machine2, {
       pContext: {
         iterator: 0,
       },
@@ -93,9 +90,8 @@ describe('interpret', () => {
   });
 
   test('#02 => test number -> context.iterator', async () => {
-    const select = selector('context.iterator');
     const { result } = renderHook(() =>
-      useState(select, (a, b) => a === b),
+      useState('context.iterator', (a, b) => a === b),
     );
     expect(result.current).toEqual(36);
   });
@@ -120,9 +116,8 @@ describe('interpret', () => {
   });
 
   test('#04 => test string -> context.input', async () => {
-    const select = selector('context.input');
     const { result } = renderHook(() =>
-      useState(select, (a, b) => a === b),
+      useState('context.input', (a, b) => a === b),
     );
 
     expect(result.current).toEqual('');
@@ -141,8 +136,7 @@ describe('interpret', () => {
   });
 
   test('#06 => test array -> context.data', async () => {
-    const select = selector('context.data');
-    const { result } = renderHook(() => useState(select));
+    const { result } = renderHook(() => useState('context.data'));
 
     console.warn('result.current', result.current);
     expect(result.current).toEqual([]);

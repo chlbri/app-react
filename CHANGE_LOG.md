@@ -3,6 +3,12 @@
 <br/>
 <br/>
 
+### Version [0.0.2-beta] --> - 2024-03-16 _00:30_
+
+- Fix types (takes too long to proceed)
+
+<br/>
+
 ### Version [0.0.1] --> - 2024-03-15 _17:00_
 
 - ✨ Première version de la bibliothèque

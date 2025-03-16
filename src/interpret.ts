@@ -8,7 +8,7 @@ import {
 } from '@bemedev/app-ts';
 import type { Decompose, State } from './types';
 import { useSelector } from './useSelector';
-import { defaultCompare, identity, type Compare_F } from './utils';
+import { defaultCompare, type Compare_F } from './utils';
 import { reFunction } from './utils/reFunction';
 
 export const interpret = <const M extends AnyMachine = AnyMachine>(
@@ -26,7 +26,6 @@ export const interpret = <const M extends AnyMachine = AnyMachine>(
   const stop = reFunction(service, 'stop');
   const send = reFunction(service, 'send');
   const addOptions = reFunction(service, 'addOptions');
-  const selector = identity<keyof Decompose<_State>>;
 
   const useState = <
     D extends Decompose<_State>,
@@ -45,5 +44,5 @@ export const interpret = <const M extends AnyMachine = AnyMachine>(
     return out;
   };
 
-  return { start, stop, send, selector, useState, addOptions };
+  return { start, stop, send, useState, addOptions };
 };
