@@ -1,6 +1,6 @@
 {
   "name": "@bemedev/app-react",
-  "version": "0.0.1-beta",
+  "version": "0.0.2-beta",
   "description": "Use app-ts inside react",
   "author": {
     "email": "bri_lvi@icloud.com",
