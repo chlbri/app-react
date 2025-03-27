@@ -1,15 +1,4 @@
-import type { Mode, WorkingStatus } from '@bemedev/app-ts';
-import type { StateValue } from '@bemedev/app-ts/lib/states';
-import type { PrimitiveObject } from '@bemedev/app-ts/lib/types';
-import { TrueObject, type NotSubType, type Ru } from '@bemedev/types';
-
-export type State<Tc extends PrimitiveObject> = {
-  context?: Tc;
-  mode?: Mode;
-  scheduleds: number;
-  status: WorkingStatus;
-  value?: StateValue;
-};
+import { TrueObject, type NotUndefined, type Ru } from '@bemedev/types';
 
 type ToPaths<
   T,
@@ -42,4 +31,28 @@ type FromPaths<
 export type Decompose<
   T extends TrueObject,
   D extends string = '.',
-> = NotSubType<FromPaths<ToPaths<T, D>>, undefined>;
+> = NotUndefined<FromPaths<ToPaths<T, D>>>;
+
+type PathImpl<T, K extends keyof T> = K extends string
+  ? T[K] extends Record<string, any>
+    ? T[K] extends ArrayLike<any>
+      ? K | `${K}.${PathImpl<T[K], Exclude<keyof T[K], keyof any[]>>}`
+      : K | `${K}.${PathImpl<T[K], keyof T[K]>}`
+    : K
+  : never;
+
+type Path<T> = PathImpl<T, keyof T> | keyof T;
+
+type PathValue<T, P extends Path<T>> = P extends `${infer K}.${infer Rest}`
+  ? K extends keyof T
+    ? Rest extends Path<T[K]>
+      ? PathValue<T[K], Rest>
+      : never
+    : never
+  : P extends keyof T
+    ? T[P]
+    : never;
+
+export type Decompose2<T> = {
+  [K in Path<T>]: PathValue<T, K>;
+};

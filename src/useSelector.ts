@@ -2,12 +2,12 @@ import type {
   AnyMachine,
   ContextFrom,
   InterpreterFrom,
+  State,
 } from '@bemedev/app-ts';
 import useSyncExternalStoreWithSelector from '@bemedev/react-sync';
 import { t } from '@bemedev/types';
 import { dequal } from 'dequal';
 import { useCallback, useRef } from 'react';
-import type { State } from './types';
 import { getSnapshot, type Compare_F } from './utils';
 
 export const useSelector = <
@@ -26,7 +26,7 @@ export const useSelector = <
 
   const subscribe = useCallback(
     (listerner: Listener) => {
-      const unsubscribe = service.subscribe(listerner as any);
+      const unsubscribe = service.__subscribeState(listerner);
       return unsubscribe;
     },
     [service],

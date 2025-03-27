@@ -34,8 +34,8 @@ describe('interpret', () => {
         iterator: 0,
       },
       mode: 'strict',
-      scheduleds: 0,
       status: 'starting',
+      event: 'machine$$init',
       value: 'idle',
     };
 
@@ -43,12 +43,15 @@ describe('interpret', () => {
     await act(start);
     expect(result.current).toEqual(initial);
     act(() => send('NEXT'));
-    expect(result.current).toEqual(initial);
-    await act(advance(100));
-    expect(result.current).toEqual({
+
+    expect(result.current).toStrictEqual({
       ...initial,
-      scheduleds: 7,
-      status: 'working',
+      event: {
+        payload: {},
+        type: 'NEXT',
+      },
+      mode: 'strict',
+      status: 'busy',
       value: {
         working: {
           fetch: 'idle',
@@ -56,15 +59,20 @@ describe('interpret', () => {
         },
       },
     });
+
     await act(advance(1000));
-    expect(result.current).toEqual({
+
+    expect(result.current).toStrictEqual({
       context: {
         data: [],
         input: '',
-        iterator: 36,
+        iterator: 32,
+      },
+      event: {
+        payload: {},
+        type: 'NEXT',
       },
       mode: 'strict',
-      scheduleds: 76,
       status: 'working',
       value: {
         working: {
@@ -79,18 +87,18 @@ describe('interpret', () => {
     const { result } = renderHook(() =>
       useState('context.iterator', (a, b) => a === b),
     );
-    expect(result.current).toEqual(36);
+    expect(result.current).toEqual(32);
   });
 
   describe('#03 => count log calls', () => {
     test('#01 => length', () => {
-      expect(log).toHaveBeenCalledTimes(18);
+      expect(log).toHaveBeenCalledTimes(16);
     });
 
     test('#02 => Called with the same param "sendPanelToUser"', () => {
       expect(log).toHaveBeenNthCalledWith(10, 'sendPanelToUser');
-      expect(log).toHaveBeenNthCalledWith(18, 'sendPanelToUser');
-      expect(log).not.toHaveBeenNthCalledWith(19, 'sendPanelToUser');
+      expect(log).toHaveBeenNthCalledWith(16, 'sendPanelToUser');
+      expect(log).not.toHaveBeenNthCalledWith(17, 'sendPanelToUser');
     });
 
     test('#03 => Not called with other param', () => {
@@ -118,7 +126,7 @@ describe('interpret', () => {
   });
 
   test('#05 => count log calls', () => {
-    expect(log).toHaveBeenCalledTimes(184);
+    expect(log).toHaveBeenCalledTimes(182);
   });
 
   test('#06 => test array -> context.data', async () => {
@@ -137,6 +145,6 @@ describe('interpret', () => {
   });
 
   test('#07 => count log calls', () => {
-    expect(log).toHaveBeenCalledTimes(184);
+    expect(log).toHaveBeenCalledTimes(182);
   });
 });

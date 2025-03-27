@@ -3,6 +3,12 @@
 <br/>
 <br/>
 
+### Version [0.0.3-beta] --> - 2024-03-27 _11:30_
+
+- Some imporvements
+
+<br/>
+
 ### Version [0.0.2-beta] --> - 2024-03-16 _00:30_
 
 - Fix types (takes too long to proceed)
