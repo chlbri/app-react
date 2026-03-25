@@ -1,5 +1,4 @@
 //Create task to start npm build at the opening
-//Create task to start npm build at the opening
 {
   "version": "2.0.0",
   "tasks": [

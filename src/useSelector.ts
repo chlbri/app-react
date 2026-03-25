@@ -18,7 +18,7 @@ export const useSelector = <
 ) => {
   type _State = StateFrom<M>;
 
-  const initialStateCacheRef = useRef<_State>(undefined as any);
+  const initialStateCacheRef = useRef<_State>(undefined as unknown as _State);
 
   type Listener = (state: _State) => void;
 
