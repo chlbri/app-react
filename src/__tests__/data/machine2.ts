@@ -1,5 +1,9 @@
-import { createConfig, createMachine, EVENTS_FULL } from '@bemedev/app-ts';
-import { t } from '@bemedev/types';
+import {
+  createConfig,
+  createMachine,
+  interpret as _interpret,
+  typings,
+} from '@bemedev/app-ts';
 import { DELAY } from './constants';
 import { fakeDB } from './fakeDB';
 import { machine1 } from './machine1';
@@ -7,6 +11,7 @@ import { machine1 } from './machine1';
 // #region machine2
 
 export const config2 = createConfig({
+  initial: 'idle',
   states: {
     idle: {
       activities: {
@@ -26,6 +31,7 @@ export const config2 = createConfig({
       },
       states: {
         fetch: {
+          initial: 'idle',
           states: {
             idle: {
               activities: {
@@ -39,21 +45,23 @@ export const config2 = createConfig({
               },
             },
             fetch: {
-              promises: {
-                src: 'fetch',
-                then: {
-                  actions: {
-                    name: 'insertData',
-                    description: 'Database insert',
+              actors: {
+                fetch: {
+                  then: {
+                    actions: {
+                      name: 'insertData',
+                      description: 'Database insert',
+                    },
+                    target: '/working/fetch/idle',
                   },
-                  target: '/working/fetch/idle',
+                  catch: '/working/fetch/idle',
                 },
-                catch: '/working/fetch/idle',
               },
             },
           },
         },
         ui: {
+          initial: 'idle',
           states: {
             idle: {
               on: {
@@ -92,72 +100,90 @@ export const config2 = createConfig({
 
 export const machine2 = createMachine(
   {
-    machines: 'machine1',
-    ...config2,
-  },
-  {
-    eventsMap: {
-      NEXT: {},
-      FETCH: {},
-      WRITE: { value: t.string },
-      FINISH: {},
-    },
-    context: t.unknown<{
-      iterator: number;
-      input: string;
-      data: string[];
-    }>(),
-    pContext: t.unknown<{ iterator: number }>(),
-    promiseesMap: {
-      fetch: { then: t.array(t.string), catch: t.object },
-    },
-  },
-  { '/': 'idle', '/working/fetch': 'idle', '/working/ui': 'idle' },
-).provideOptions(
-  ({ isNotValue, isValue, createChild, assign, voidAction }) => ({
-    actions: {
-      inc: assign('context.iterator', (_, { iterator }) => iterator + 1),
-      inc2: assign('context.iterator', (_, { iterator }) => iterator + 4),
-      sendPanelToUser: voidAction(() => console.log('sendPanelToUser')),
-      askUsertoInput: voidAction(() => console.log('Input, please !!')),
-      write: assign('context.input', {
-        WRITE: (_, __, { value }) => value,
-      }),
-      insertData: assign('context.data', {
-        'fetch::then': (_, { data }, payload) => {
-          data.push(...payload);
-          return data;
+    actors: {
+      machine1: {
+        contexts: {
+          iterator: 'iterator',
         },
-      }),
-    },
-    predicates: {
-      isInputEmpty: isValue('context.input', ''),
-      isInputNotEmpty: isNotValue('context.input', ''),
-    },
-    promises: {
-      fetch: async (_, { input }) => {
-        return fakeDB.filter(item => item.name.includes(input));
+        on: {},
       },
     },
-    delays: {
-      DELAY,
-      DELAY2: 2 * DELAY,
+    ...config2,
+  },
+  typings({
+    eventsMap: {
+      NEXT: 'primitive',
+      FETCH: 'primitive',
+      WRITE: { value: 'string' },
+      FINISH: 'primitive',
     },
-    machines: {
-      machine1: createChild(
-        machine1,
-        {
-          pContext: {},
-          context: { iterator: 0 },
+    pContext: {
+      iterator: 'number',
+    },
+    context: {
+      iterator: 'number',
+      input: 'string',
+      data: typings.array('string'),
+    },
+    actorsMap: {
+      children: {
+        machine1: {
+          NEXT: 'primitive',
         },
-        {
-          events: EVENTS_FULL,
-          contexts: { iterator: 'iterator' },
+        fetch: 'primitive',
+      },
+      promisees: {
+        fetch: {
+          then: typings.array('string'),
+          catch: 'primitive',
         },
-      ),
+      },
     },
   }),
-);
+).provideOptions(({ isNotValue, isValue, assign, voidAction }) => ({
+  actions: {
+    inc: assign(
+      'context.iterator',
+      ({ context }) => (context?.iterator ?? 0) + 1,
+    ),
+    inc2: assign(
+      'context.iterator',
+      ({ context }) => (context?.iterator ?? 0) + 4,
+    ),
+    sendPanelToUser: voidAction(() => console.log('sendPanelToUser')),
+    askUsertoInput: voidAction(() => console.log('Input, please !!')),
+    write: assign('context.input', {
+      WRITE: ({ payload: { value } }) => value,
+    }),
+    insertData: assign('context.data', {
+      'fetch::then': ({ payload, context }) => {
+        const data = context?.data ?? [];
+        data.push(...(payload as string[]));
+        return data;
+      },
+    }),
+  },
+  predicates: {
+    isInputEmpty: isValue('context.input', ''),
+    isInputNotEmpty: isNotValue('context.input', ''),
+  },
+  actors: {
+    promises: {
+      fetch: async ({ context }) => {
+        return fakeDB
+          .filter(item => item.name.includes(context!.input!))
+          .map(item => item.name);
+      },
+    },
+    children: {
+      machine1: () => _interpret(machine1, { context: { iterator: 0 } }),
+    },
+  },
+  delays: {
+    DELAY,
+    DELAY2: 2 * DELAY,
+  },
+}));
 
 export type Machine2 = typeof machine2;
 // #endregion

@@ -1,33 +1,31 @@
 import type {
   AnyMachine,
-  ContextFrom,
   InterpreterFrom,
-  State,
+  StateFrom,
 } from '@bemedev/app-ts';
 import useSyncExternalStoreWithSelector from '@bemedev/react-sync';
-import { t } from '@bemedev/types';
 import { dequal } from 'dequal';
 import { useCallback, useRef } from 'react';
 import { getSnapshot, type Compare_F } from './utils';
 
 export const useSelector = <
   const M extends AnyMachine = AnyMachine,
-  T = State<ContextFrom<M>>,
+  T = StateFrom<M>,
 >(
   service: InterpreterFrom<M>,
-  selector: (emitted: State<ContextFrom<M>>) => T,
+  selector: (emitted: StateFrom<M>) => T,
   compare: Compare_F = dequal,
 ) => {
-  type _State = State<ContextFrom<M>>;
+  type _State = StateFrom<M>;
 
-  const initialStateCacheRef = useRef<_State>(t.any<_State>(undefined));
+  const initialStateCacheRef = useRef<_State>(undefined as any);
 
   type Listener = (state: _State) => void;
 
   const subscribe = useCallback(
     (listerner: Listener) => {
-      const unsubscribe = service.__subscribeState(listerner);
-      return unsubscribe;
+      const subscriber = service.subscribe(listerner);
+      return () => subscriber.unsubscribe();
     },
     [service],
   );

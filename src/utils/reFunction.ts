@@ -1,7 +1,7 @@
-import type { SubType } from '@bemedev/app-ts/lib/types';
-
 type Fn<P extends any[] = any, R = any> = (...arg: P) => R;
-type KeysFn<T extends object = object> = keyof SubType<T, Fn>;
+type KeysFn<T extends object = object> = {
+  [K in keyof T]: T[K] extends Fn ? K : never;
+}[keyof T];
 
 function _reFunction<P extends any[] = any[], R = any>(
   fn: Fn<P, R>,
