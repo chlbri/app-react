@@ -2,6 +2,7 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=node
 
 #For Libraries
+dist
 lib
 
 #
@@ -27,7 +28,6 @@ pids
 lib-cov
 
 # Coverage directory used by tools like istanbul
-coverage
 .coverage
 *.lcov
 
@@ -46,9 +46,6 @@ bower_components
 # Dependency directories
 node_modules
 jspm_packages/
-
-# TypeScript v1 declaration files
-typings/
 
 # TypeScript cache
 *.tsbuildinfo
@@ -134,8 +131,9 @@ yarn.lock
 .env.production.local.json
 .env.test.local.json
 
-#Apple
+# misc
 **/.DS_Store
+*.pem
 
 #my
 build.npm.ts

@@ -1,10 +1,10 @@
-import { TrueObject, type NotUndefined, type Ru } from '@bemedev/types';
+import type { types } from '@bemedev/types';
 
 type ToPaths<
   T,
   D extends string = '.',
   P extends string = '',
-> = T extends Ru
+> = T extends types.Ru
   ? Required<{
       [K in keyof T]: ToPaths<T[K], D, `${P}${K & string}${D}`>;
     }>[keyof T]
@@ -29,9 +29,9 @@ type FromPaths<
  * From "Acid Coder"
  */
 export type Decompose<
-  T extends TrueObject,
+  T extends types.TrueObject,
   D extends string = '.',
-> = NotUndefined<FromPaths<ToPaths<T, D>>>;
+> = types.NotUndefined<FromPaths<ToPaths<T, D>>>;
 
 type PathImpl<T, K extends keyof T> = K extends string
   ? T[K] extends Record<string, any>
