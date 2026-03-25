@@ -20,7 +20,6 @@ export default defineConfig({
     environment: 'jsdom',
     coverage: {
       enabled: true,
-      extension: 'ts',
       reportsDirectory: '.coverage',
       all: true,
       provider: 'v8',
