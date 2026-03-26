@@ -1,38 +1,45 @@
 import {
+  getByKey as _getByKey,
   interpret as _interpret,
-  getByKey,
+  InterpretArgs,
   type AnyMachine,
-  type ContextFrom,
-  type Mode,
-  type PrivateContextFrom,
   type StateFrom,
+  type DecomposedStateFrom,
 } from '@bemedev/app-ts';
 import { useSelector } from './useSelector';
 import { defaultCompare, reFunction, type Compare_F } from './utils';
 
 export const interpret = <const M extends AnyMachine = AnyMachine>(
-  machine: M,
-  config: {
-    pContext: PrivateContextFrom<M>;
-    context: ContextFrom<M>;
-    mode?: Mode;
-  },
+  ...args: InterpretArgs<M>
 ) => {
   type _State = StateFrom<M>;
+  type D = DecomposedStateFrom<M>;
 
-  const service = _interpret(machine, config);
+  const service = (_interpret as any)(...args);
   const start = reFunction(service, 'start');
   const stop = reFunction(service, 'stop');
   const send = reFunction(service, 'send');
   const addOptions = reFunction(service, 'addOptions');
 
-  const useState = <K extends string, R = unknown>(
-    key?: K,
-    compare: Compare_F = defaultCompare,
+  const useState = <T>(
+    selector: (state: _State) => T,
+    compare: Compare_F<T> = defaultCompare,
   ) => {
-    const out = useSelector<M, K extends undefined ? _State : R>(
+    return useSelector<M, T>(service, selector, compare);
+  };
+
+  useState.byKey = <
+    K extends keyof D = never,
+    T extends K extends never ? _State : D[K] = K extends never
+      ? _State
+      : D[K],
+  >(
+    key?: K,
+    compare: Compare_F<T> = defaultCompare,
+  ) => {
+    const out = useSelector<M, T>(
       service,
-      state => (!key ? state : (getByKey as any)(state, key)),
+      state => (!key ? state : _getByKey.low(state, key as any)),
       compare,
     );
 

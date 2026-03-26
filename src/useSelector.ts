@@ -3,7 +3,7 @@ import type {
   InterpreterFrom,
   StateFrom,
 } from '@bemedev/app-ts';
-import useSyncExternalStoreWithSelector from '@bemedev/react-sync';
+import { useSync } from '@bemedev/react-sync';
 import { dequal } from 'dequal';
 import { useCallback, useRef } from 'react';
 import { getSnapshot, type Compare_F } from './utils';
@@ -18,7 +18,9 @@ export const useSelector = <
 ) => {
   type _State = StateFrom<M>;
 
-  const initialStateCacheRef = useRef<_State>(undefined as unknown as _State);
+  const initialStateCacheRef = useRef<_State>(
+    undefined as unknown as _State,
+  );
 
   type Listener = (state: _State) => void;
 
@@ -34,7 +36,7 @@ export const useSelector = <
     return getSnapshot<M>(service, initialStateCacheRef as any);
   }, [service]);
 
-  const selectedSnapshot = useSyncExternalStoreWithSelector(
+  const selectedSnapshot = useSync(
     subscribe,
     boundGetSnapshot,
     boundGetSnapshot,

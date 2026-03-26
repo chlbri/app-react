@@ -1,11 +1,11 @@
-import { addTarball, cleanup } from '@bemedev/build-tests';
 import { this1 } from '@bemedev/build-tests/constants';
 import { renderHook } from '@testing-library/react';
 import { act } from 'react';
 import type { interpret } from '../interpret';
 import { fakeDB, machine2, type Machine2 } from './data';
+import { IS_EXTENSION } from './constants';
 
-describe('interpret', () => {
+describe.skipIf(IS_EXTENSION)('interpret', () => {
   let tester: typeof interpret;
 
   const log = vi.spyOn(console, 'log').mockImplementation(() => {});
@@ -23,7 +23,6 @@ describe('interpret', () => {
     };
 
   beforeAll(async () => {
-    addTarball();
     tester = await import(this1).then(({ interpret }) => interpret);
 
     ({ start, useState, send } = tester(machine2, {
@@ -36,10 +35,8 @@ describe('interpret', () => {
     vi.useFakeTimers();
   });
 
-  afterAll(cleanup);
-
   test('#01 => test object -> all context', async () => {
-    const { result } = renderHook(() => useState());
+    const { result } = renderHook(() => useState.byKey());
 
     const initial = {
       context: {
@@ -47,15 +44,18 @@ describe('interpret', () => {
         input: '',
         iterator: 0,
       },
-      mode: 'strict',
       status: 'starting',
-      event: 'machine$$init',
+      event: {
+        payload: {},
+        type: 'machine$$init',
+      },
+      tags: undefined,
       value: 'idle',
     };
 
     expect(result.current).toEqual(initial);
     await act(start);
-    expect(result.current).toEqual(initial);
+    expect(result.current).toEqual({ ...initial, status: 'working' });
     act(() => send('NEXT'));
 
     expect(result.current).toStrictEqual({
@@ -64,7 +64,6 @@ describe('interpret', () => {
         payload: {},
         type: 'NEXT',
       },
-      mode: 'strict',
       status: 'busy',
       value: {
         working: {
@@ -86,7 +85,7 @@ describe('interpret', () => {
         payload: {},
         type: 'NEXT',
       },
-      mode: 'strict',
+      tags: undefined,
       status: 'working',
       value: {
         working: {
@@ -99,7 +98,7 @@ describe('interpret', () => {
 
   test('#02 => test number -> context.iterator', async () => {
     const { result } = renderHook(() =>
-      useState('context.iterator', (a, b) => a === b),
+      useState.byKey('context.iterator', (a, b) => a === b),
     );
     expect(result.current).toEqual(32);
   });
@@ -125,7 +124,7 @@ describe('interpret', () => {
 
   test('#04 => test string -> context.input', async () => {
     const { result } = renderHook(() =>
-      useState('context.input', (a, b) => a === b),
+      useState.byKey('context.input', (a, b) => a === b),
     );
 
     expect(result.current).toEqual('');
@@ -140,11 +139,11 @@ describe('interpret', () => {
   });
 
   test('#05 => count log calls', () => {
-    expect(log).toHaveBeenCalledTimes(182);
+    expect(log).toHaveBeenCalledTimes(514);
   });
 
   test('#06 => test array -> context.data', async () => {
-    const { result } = renderHook(() => useState('context.data'));
+    const { result } = renderHook(() => useState.byKey('context.data'));
 
     console.warn('result.current', result.current);
     expect(result.current).toEqual([]);
@@ -153,12 +152,66 @@ describe('interpret', () => {
     await act(advance(10));
 
     const FAKES = fakeDB.filter(({ name }) => name.includes(INPUT));
-    expect(result.current).toEqual(FAKES);
+    expect(result.current).toEqual(FAKES.map(({ name }) => name));
 
     await act(advance(10_000));
   });
 
   test('#07 => count log calls', () => {
-    expect(log).toHaveBeenCalledTimes(182);
+    expect(log).toHaveBeenCalledTimes(680);
+  });
+
+  describe('#08 => useState (selector function)', () => {
+    test('#01 => selector -> context.iterator', () => {
+      const { result } = renderHook(() =>
+        useState(
+          state => (state as any).context.iterator,
+          (a, b) => a === b,
+        ),
+      );
+      expect(typeof result.current).toBe('number');
+    });
+
+    test('#02 => selector -> context.input', () => {
+      const { result } = renderHook(() =>
+        useState(
+          state => (state as any).context.input,
+          (a, b) => a === b,
+        ),
+      );
+      expect(result.current).toBe('a');
+    });
+
+    test('#03 => selector -> context.data', () => {
+      const { result } = renderHook(() =>
+        useState(state => (state as any).context.data),
+      );
+      expect(Array.isArray(result.current)).toBe(true);
+    });
+
+    test('#04 => selector -> derived value (iterator * 2)', () => {
+      const { result } = renderHook(() =>
+        useState(
+          state => (state as any).context.iterator * 2,
+          (a, b) => a === b,
+        ),
+      );
+      expect(typeof result.current).toBe('number');
+    });
+
+    test('#05 => selector reacts to state change', async () => {
+      const NEW_INPUT = 'b';
+      const { result } = renderHook(() =>
+        useState(
+          state => (state as any).context.input,
+          (a, b) => a === b,
+        ),
+      );
+      act(() => send({ type: 'WRITE', payload: { value: NEW_INPUT } }));
+      await act(advance(10_000));
+      act(() => send({ type: 'WRITE', payload: { value: NEW_INPUT } }));
+      await act(advance(10_000));
+      expect(result.current).toBe(NEW_INPUT);
+    });
   });
 });

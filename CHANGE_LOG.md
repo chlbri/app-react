@@ -3,6 +3,24 @@
 <br/>
 <br/>
 
+<details>
+<summary>
+
+## **[0.1.0] - 26/03/2026** => _03:55_
+
+</summary>
+
+- Migrate vers `@bemedev/app-ts` v2 API : `StateFrom<M>` remplace `State<ContextFrom<M>>`
+- Update API de souscription : `service.subscribe()` + `.unsubscribe()` remplace `service.__subscribeState()`
+- Refactor types dans `interpret.ts` : suppression des types complexes imbriqués (gain de lisibilité)
+- Migrate build tool : Rollup → Rolldown
+- Migrate linter : ESLint → OxLint
+- Update dépendances
+
+</details>
+
+<br/>
+
 ### Version [0.0.3-beta] --> - 2024-03-27 _11:30_
 
 - Some imporvements

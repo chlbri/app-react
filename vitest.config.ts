@@ -7,9 +7,13 @@ import tsconfig from './tsconfig.json';
 export default defineConfig({
   plugins: [
     aliasTs(tsconfig as any),
-    exclude({ ignoreCoverageFiles: ['**/index.ts', './src/types.ts'] }),
+    exclude({
+      ignoreCoverageFiles: ['**/index.ts', './src/types.ts', '.pack/**/*'],
+      ignoreTestFiles: ['.pack/**/*'],
+    }),
     react(),
   ],
+
   test: {
     bail: 10,
     maxConcurrency: 10,
