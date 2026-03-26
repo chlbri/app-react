@@ -6,6 +6,37 @@
 <details>
 <summary>
 
+## **[0.2.0] - 26/03/2026** => _16:46_
+
+</summary>
+
+- feat(core): Add `.bemedev.json` configuration file for project setup
+- feat(docs): Add comprehensive commit message guidelines (Conventional
+  Commits with French support)
+- feat(docs): Add test organization guidelines with spacing rules and
+  numbering conventions
+- fix(ci): Replace build step with pretest in CI workflow for optimized
+  execution
+- Update dependencies: @bemedev/app-ts ^2.2.2, react ^19.2.4, rolldown
+  1.0.0-rc.12, jsdom ^29.0.1
+- Add @bemedev/react-sync ^0.1.1 as primary dependency
+- Add rxjs ^7.8.2 to devDependencies
+- Enhance build infrastructure with @bemedev/rolldown-config ^0.4.2 and
+  oxfmt ^0.42.0
+- Restructure GitHub workflows: upgrade.yml improvements, publish workflows
+  optimization
+- Add project skills: analyze-tests, check-spacing, organize-tests,
+  translate, update-docs
+- Update vitest configuration and test execution pipeline
+- <u>Test coverage **_100%_**</u>
+
+</details>
+
+<br/>
+
+<details>
+<summary>
+
 ## **[0.1.0] - 26/03/2026** => _03:55_
 
 </summary>

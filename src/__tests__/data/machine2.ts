@@ -47,6 +47,7 @@ export const config2 = createConfig({
             fetch: {
               actors: {
                 fetch: {
+                  // oxlint-disable-next-line unicorn/no-thenable
                   then: {
                     actions: {
                       name: 'insertData',
@@ -134,6 +135,7 @@ export const machine2 = createMachine(
       },
       promisees: {
         fetch: {
+          // oxlint-disable-next-line unicorn/no-thenable
           then: typings.array('string'),
           catch: 'primitive',
         },
