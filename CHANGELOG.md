@@ -10,9 +10,12 @@
 
 </summary>
 
-- Migrate vers `@bemedev/app-ts` v2 API : `StateFrom<M>` remplace `State<ContextFrom<M>>`
-- Update API de souscription : `service.subscribe()` + `.unsubscribe()` remplace `service.__subscribeState()`
-- Refactor types dans `interpret.ts` : suppression des types complexes imbriqués (gain de lisibilité)
+- Migrate vers `@bemedev/app-ts` v2 API : `StateFrom<M>` remplace
+  `State<ContextFrom<M>>`
+- Update API de souscription : `service.subscribe()` + `.unsubscribe()`
+  remplace `service.__subscribeState()`
+- Refactor types dans `interpret.ts` : suppression des types complexes
+  imbriqués (gain de lisibilité)
 - Migrate build tool : Rollup → Rolldown
 - Migrate linter : ESLint → OxLint
 - Update dépendances
