@@ -1,64 +1,37 @@
-type Ru = Record<keyof any, unknown>;
+import {
+  AnyMachine,
+  InterpretArgs,
+  StateFrom,
+  DecomposedStateFrom,
+  EventsMapFrom,
+  AddOptionsFrom,
+} from '@bemedev/app-ts';
+import { Compare_F } from './utils';
+import { EventArg } from '@bemedev/app-ts/lib/events';
 
-type TrueObject = Ru & {
-  [Symbol.iterator]?: never;
+type VoidFn = () => Promise<void>;
+
+export type Return_F<M extends AnyMachine> = {
+  start: VoidFn;
+  stop: VoidFn;
+  send: (event: EventArg<EventsMapFrom<M>>) => void;
+  useState: {
+    <T>(selector: (state: StateFrom<M>) => T, compare?: Compare_F<T>): T;
+    byKey<
+      K extends keyof DecomposedStateFrom<M> = never,
+      T extends K extends never
+        ? StateFrom<M>
+        : DecomposedStateFrom<M>[K] = K extends never
+        ? StateFrom<M>
+        : DecomposedStateFrom<M>[K],
+    >(
+      key?: K,
+      compare?: Compare_F<T>,
+    ): T;
+  };
+  addOptions: AddOptionsFrom<M>;
 };
 
-type NotUndefined<T> = T extends undefined ? never : T;
-
-type ToPaths<
-  T,
-  D extends string = '.',
-  P extends string = '',
-> = T extends Ru
-  ? Required<{
-      [K in keyof T]: ToPaths<T[K], D, `${P}${K & string}${D}`>;
-    }>[keyof T]
-  : {
-      path: P extends `${infer P}${D}` ? P : never;
-      type: T;
-    };
-type FromPaths<
-  T extends {
-    path: string;
-    type: unknown;
-  },
-> = {
-  [P in T['path']]: Extract<
-    T,
-    {
-      path: P;
-    }
-  >['type'];
-};
-/**
- * From "Acid Coder"
- */
-export type Decompose<
-  T extends TrueObject,
-  D extends string = '.',
-> = NotUndefined<FromPaths<ToPaths<T, D>>>;
-
-type PathImpl<T, K extends keyof T> = K extends string
-  ? T[K] extends Record<string, any>
-    ? T[K] extends ArrayLike<any>
-      ? K | `${K}.${PathImpl<T[K], Exclude<keyof T[K], keyof any[]>>}`
-      : K | `${K}.${PathImpl<T[K], keyof T[K]>}`
-    : K
-  : never;
-
-type Path<T> = PathImpl<T, keyof T> | keyof T;
-
-type PathValue<T, P extends Path<T>> = P extends `${infer K}.${infer Rest}`
-  ? K extends keyof T
-    ? Rest extends Path<T[K]>
-      ? PathValue<T[K], Rest>
-      : never
-    : never
-  : P extends keyof T
-    ? T[P]
-    : never;
-
-export type Decompose2<T> = {
-  [K in Path<T>]: PathValue<T, K>;
-};
+export type Interpret_F = <const M extends AnyMachine = AnyMachine>(
+  ...args: InterpretArgs<M>
+) => Return_F<M>;

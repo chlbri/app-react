@@ -203,4 +203,36 @@ describe('interpret', () => {
       expect(result.current).toBe(NEW_INPUT);
     });
   });
+
+  describe('#09 => addOptions', () => {
+    const {
+      start: start2,
+      useState: useState2,
+      addOptions,
+    } = interpret(machine2, {
+      pContext: { iterator: 0 },
+      context: { iterator: 0, input: '', data: [] },
+    });
+
+    test('#01 => override inc to +1.5', () => {
+      addOptions(({ assign }) => ({
+        actions: {
+          inc: assign(
+            'context.iterator',
+            ({ context }) => (context?.iterator ?? 0) + 1.5,
+          ),
+        },
+      }));
+    });
+
+    test('#02 => start', start2);
+    test('#03 => advance 60ms', () => vi.advanceTimersByTime(60));
+
+    test('#04 => iterator is 1.5', () => {
+      const { result } = renderHook(() =>
+        useState2.byKey('context.iterator', (a, b) => a === b),
+      );
+      expect(result.current).toBe(1.5);
+    });
+  });
 });

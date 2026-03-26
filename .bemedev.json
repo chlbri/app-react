@@ -1,0 +1,22 @@
+{
+  "version": "1.0.0",
+  "path": ".bemedev",
+  "files": [
+    "features.arrays.types",
+    "features.booleans.types",
+    "features.common.types",
+    "features.functions.types",
+    "features.numbers.constants",
+    "features.numbers.types",
+    "features.objects.types",
+    "features.objects.utils.types",
+    "features.promises.types",
+    "features.strings.constants",
+    "features.strings.types",
+    "features.transform.constants",
+    "features.transform.transform.types",
+    "features.transform.types",
+    "globals.types",
+    "globals.utils.expandFn"
+  ]
+}

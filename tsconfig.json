@@ -22,6 +22,9 @@
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
     "noEmit": true,
-    "declarationMap": true
+    "declarationMap": true,
+    "paths": {
+      "#bemedev/*": ["./src/.bemedev/*"]
+    }
   }
 }

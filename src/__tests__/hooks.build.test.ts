@@ -2,8 +2,9 @@ import { this1 } from '@bemedev/build-tests/constants';
 import { renderHook } from '@testing-library/react';
 import { act } from 'react';
 import type { interpret } from '../interpret';
-import { fakeDB, machine2, type Machine2 } from './data';
+import type { Return_F } from '../types';
 import { IS_EXTENSION } from './constants';
+import { fakeDB, machine2 } from './data';
 
 describe.skipIf(IS_EXTENSION)('interpret', () => {
   let tester: typeof interpret;
@@ -11,8 +12,7 @@ describe.skipIf(IS_EXTENSION)('interpret', () => {
   const log = vi.spyOn(console, 'log').mockImplementation(() => {});
 
   const INPUT = 'a';
-
-  type RR = ReturnType<typeof interpret<Machine2>>;
+  type RR = Return_F<typeof machine2>;
 
   let start: RR['start'], useState: RR['useState'], send: RR['send'];
 
@@ -212,6 +212,44 @@ describe.skipIf(IS_EXTENSION)('interpret', () => {
       act(() => send({ type: 'WRITE', payload: { value: NEW_INPUT } }));
       await act(advance(10_000));
       expect(result.current).toBe(NEW_INPUT);
+    });
+  });
+
+  describe('#09 => addOptions', () => {
+    let start2: RR['start'];
+    let useState2: RR['useState'];
+    let addOptions: RR['addOptions'];
+
+    beforeAll(() => {
+      ({
+        start: start2,
+        useState: useState2,
+        addOptions,
+      } = tester(machine2, {
+        pContext: { iterator: 0 },
+        context: { iterator: 0, input: '', data: [] },
+      }));
+    });
+
+    test('#01 => override inc to +1.5', () => {
+      addOptions(({ assign }) => ({
+        actions: {
+          inc: assign(
+            'context.iterator',
+            ({ context }) => (context?.iterator ?? 0) + 1.5,
+          ),
+        },
+      }));
+    });
+
+    test('#02 => start', () => start2());
+    test('#03 => advance 60ms', () => vi.advanceTimersByTime(60));
+
+    test('#04 => iterator is 1.5', () => {
+      const { result } = renderHook(() =>
+        useState2.byKey('context.iterator', (a, b) => a === b),
+      );
+      expect(result.current).toBe(1.5);
     });
   });
 });
